@@ -1,0 +1,6 @@
+﻿@model DateTime?
+
+@Html.TextBox(
+  "",
+  Model.HasValue && Model.Value != DateTime.MinValue ? Model.Value.ToShortDateString() : "",
+  new { @class = "datepicker", autocomplete = "off" })

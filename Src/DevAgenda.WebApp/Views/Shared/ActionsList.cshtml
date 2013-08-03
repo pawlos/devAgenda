@@ -1,0 +1,78 @@
+﻿@using DevAgenda.Domain.Models
+@using Microsoft.Web.Helpers
+@using Action = DevAgenda.Domain.Models.Action
+
+@model IEnumerable<Action>
+   
+<style type="text/css">
+    #action-list-right a 
+    {
+      color: #868686;
+      text-decoration: none;   
+    }
+    
+    #action-list-right a:hover 
+    {
+        color: #868686;
+        text-decoration: underline;
+    }
+</style>
+
+<ul id="action-list-right" style="float: left; width: 100%; margin-left: 2px;">
+  @foreach (var action in Model)
+  {
+    // TODO: HI refactor
+
+    string message = "";
+
+    switch (action.Type)
+    {
+      case ActionType.EventCreated:
+        message =
+          string.Format(
+            DevAgenda.Resources.Action.EventCreated,
+            Html.ActionLink(action.Event.CreatedBy.UserName, "Profile", "Users", new { userId = action.Event.CreatedById }, null), // TODO: HI slugify
+            Html.ActionLink(action.Event.Name, "Details", "Events", new { id = action.EventId }, null)); // TODO: HI slugify
+        break;
+      default:
+        throw new ArgumentOutOfRangeException();
+    }
+    
+    <li style="border-bottom: 1px dotted #DCDCDC; float: left; line-height: 6px; list-style-type: none; margin-bottom: 9px; padding-bottom: 9px;">
+      @Gravatar.GetHtml("rafal.legiedz@gmail.com", imageSize: 30, attributes: new { style = "float: left; height: 30px; width: 30px; margin: 4px 10px 0 0; background-color: #FFFFFF; box-shadow: 0 0 3px #969696; padding: 1px;" })
+      <p style="font-size: 12px; font-style: italic; line-height: 20.8px; margin: 1px 0 4px; overflow: hidden; width: 168px; float: left; color: #B3B3B3;">
+        @Html.Raw(message)
+      </p>
+      <p style="color: #B3B3B3; float: right; font-size: 11px; font-style: normal; margin: 4px 2px 0;">
+        3 days ago @* TODO: HI calculate relative date *@
+      </p>
+    </li>
+  }
+  
+</ul>   
+         
+@*@foreach (var action in Model)
+{
+  // TODO: HI refactor
+  
+  string message = "";
+  
+  switch(action.Type)
+  {
+    case ActionType.EventCreated:
+      message =
+        string.Format(
+          DevAgenda.Resources.Action.EventCreated,
+          Html.ActionLink(action.Event.CreatedBy.UserName, "Profile", "Users", new {userId = action.Event.CreatedById}, null), // TODO: HI slugify
+          Html.ActionLink(action.Event.Name, "Details", "Events", new {id = action.EventId}, null)); // TODO: HI slugify
+      break;
+    default:
+    throw new ArgumentOutOfRangeException();
+  }
+  
+  <div style="border-bottom: 1px dotted #DCDCDC; height: 40px; margin-bottom: 12px; padding: 0 0 12px 0; overflow: hidden; width: 100%;">
+    @Gravatar.GetHtml("rafal.legiedz@gmail.com", imageSize: 40, attributes: new { style="float: left; height: 40px; width: 40px; margin: 4px 10px 0 0; background-color: #FFFFFF; border-radius: 6px 6px 6px 6px; box-shadow: 0 0 3px #969696; padding: 5px;" })
+    @Html.Raw(message)
+  </div>
+}*@
+

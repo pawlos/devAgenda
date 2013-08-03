@@ -1,0 +1,60 @@
+﻿@using DevAgenda.Domain.Models
+
+@model IEnumerable<Tag>
+
+@{
+  var tagsToDisplay = "";
+
+  if (Model != null && Model.Count() != 0)
+  {
+    tagsToDisplay = 
+      Model
+        .Select(t => t.Name)
+        .Aggregate((current, next) => current + " " + next);
+  }
+}
+
+@Html.TextBox("", tagsToDisplay)
+
+<script type="text/javascript">
+  $(function () {
+    function split(val) {
+      return val.split(/ \s*/);
+    }
+
+    function extractLast(term) {
+      return split(term).pop();
+    }
+
+    $("#Tags")
+        .bind("keydown", function (event) {
+          if (event.keyCode === $.ui.keyCode.TAB && $(this).data("autocomplete").menu.active) {
+            event.preventDefault();
+          }
+        })
+        .autocomplete({
+          minLength: 2,
+          source: function (request, response) {
+            $.getJSON(
+              "@Url.Action("Search", "Tags")", 
+              { term: extractLast(request.term) }, 
+              response);
+          },
+          focus: function () {
+            return false;
+          }, 
+          search: function() {
+              var term = extractLast(this.value);
+              return !term.length < 2;
+          },
+          select: function (event, ui) {
+            var terms = split(this.value);
+            terms.pop();
+            terms.push(ui.item.value);
+            terms.push("");
+            this.value = terms.join(" ");
+            return false;
+          }
+        });
+  });
+</script>

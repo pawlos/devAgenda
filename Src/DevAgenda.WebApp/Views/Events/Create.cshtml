@@ -1,0 +1,154 @@
+﻿@using DevAgenda.Resources
+@using DevAgenda.Resources.Events
+@using DevAgenda.WebApp.Helpers;
+
+@model DevAgenda.Domain.Models.Event
+         
+@{
+  ViewBag.Title = Create.AddNewEvent + " - " + Common.SiteName;
+  Layout = "~/Views/Shared/_RightSidebarLayout.cshtml";
+}
+
+@section HeadArea {
+  <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+  
+  @Html.IncludeCreateEventScripts();
+}
+
+@section Sidebar {
+  <div class="sidebar-content-right">
+    <h5>@Create.WhyBotherHeader</h5>
+    @Html.Raw(Create.WhyBotherTextBlock)
+  </div>
+  <div class="sidebar-content-right">
+    <h5>@Create.WhatToProvideHeader</h5>
+    @Html.Raw(Create.WhatToProvideTextBlock)
+  </div>
+}
+
+<h3>@Create.AddNewEvent</h3>
+
+<div id="createArea">
+  <div id="createEventFormArea">
+    @using (Html.BeginForm())
+    {
+      <fieldset>
+        @Html.HiddenFor(e => e.CreatedById)
+        <div class="label-form-inline">
+          @Html.LabelFor(e => e.Name, true)
+          @Html.ValidationMessageFor(e => e.Name)
+          @Html.TextBoxFor(e => e.Name, new { autocomplete = "off" })
+        </div>
+        <div class="label-form-inline">
+          @Html.DropDownListFor(e => e.TypeId, (IEnumerable<SelectListItem>)ViewBag.EventTypes)
+          @Html.CheckBoxFor(e => e.IsFreeOfCharge)
+          @Html.LabelFor(e => e.IsFreeOfCharge)
+        </div>
+        <div class="label-form-inline">
+          <div style="width: 100px; float: left;">
+            @Html.LabelFor(e => e.StartDate, true)
+            @Html.ValidationMessageFor(e => e.StartDate)
+            @Html.EditorFor(e => e.StartDate)
+          </div>
+          <div style="width: 100px; float: left; margin-left: 20px;">
+            @Html.LabelFor(e => e.EndDate, false)
+            @Html.ValidationMessageFor(e => e.EndDate)
+            @Html.EditorFor(e => e.EndDate)
+          </div>
+        </div>
+        <div class="label-form-inline">
+          @Html.LabelFor(e => e.Tags, true)
+          @Html.ValidationMessageFor(e => e.Tags)
+          @Html.EditorFor(e => e.Tags)
+          <div class="field-notes">
+            @Create.TagsNotes
+          </div>
+        </div>
+        <div class="label-form-inline">
+          <div style="overflow: hidden; width: 100%">
+            @Html.LabelFor(e => e.LocationId)
+            <span class="required-value">*</span>
+          </div>
+
+          @Html.ValidationMessage("LocationPlaceholder")
+          @Html.TextBox("LocationPlaceholder", (Model != null && Model.Location != null ? Model.Location.Formatted : null), new { autocomplete = "off" })
+          
+          <div class="field-notes">
+            @Create.LocationNotes
+          </div>
+
+          @Html.HiddenFor(e => e.LocationId)
+
+          <div id="location-suggestions"></div>
+        </div>
+        <div class="label-form-inline">
+          @Html.LabelFor(e => e.Website, true)
+          @Html.ValidationMessageFor(e => e.Website)
+          @Html.TextBoxFor(e => e.Website)
+        </div>
+        <div class="label-form-inline">
+          <div style="width: 172px; float: left;">
+            @Html.LabelFor(e => e.TwitterHashTag, false)
+            @Html.ValidationMessageFor(e => e.TwitterHashTag)
+            @Html.TextBoxFor(e => e.TwitterHashTag)
+          </div>
+          <div style="width: 172px; float: right;">
+            @Html.LabelFor(e => e.TwitterProfile, false)
+            @Html.ValidationMessageFor(e => e.TwitterProfile)
+            @Html.TextBoxFor(e => e.TwitterProfile)
+          </div>
+        </div>
+        <div class="label-form-inline">
+          @Html.LabelFor(e => e.Summary, false)
+          @Html.ValidationMessageFor(e => e.Summary)
+          @Html.TextAreaFor(e => e.Summary)
+          
+          <div class="field-notes">
+            @Create.SummaryNotes
+          </div>
+        </div>
+        <button id="submit-event" type="submit">@Create.AddEvent</button>
+      </fieldset>
+    }
+  </div>
+</div>
+
+<div id="formTooltip">
+  <span id="tooltipArrow"></span><span class="tooltipContent"></span>
+</div>
+
+<div style="display: none;">
+  <div id="NameTooltipContent">
+    @Html.Raw(Create.NameTooltipContent)
+  </div>
+  <div id="TypeIdTooltipContent">
+    @Html.Raw(Create.TypeIdTooltipContent)
+  </div>
+  <div id="IsFreeOfChargeTooltipContent">
+    @Html.Raw(Create.IsFreeOfChargeTooltipContent)
+  </div>
+  <div id="StartDateTooltipContent">
+    @Html.Raw(Create.StartDateTooltipContent)
+  </div>
+  <div id="EndDateTooltipContent">
+    @Html.Raw(Create.EndDateTooltipContent)
+  </div>
+  <div id="TagsTooltipContent">
+    @Html.Raw(Create.TagsTooltipContent)
+  </div>
+  <div id="LocationPlaceholderTooltipContent">
+    @Html.Raw(Create.LocationTooltipContent)
+  </div>
+  <div id="WebsiteTooltipContent">
+    @Html.Raw(Create.WebsiteTooltipContent)
+  </div>
+  <div id="TwitterHashTagTooltipContent">
+    @Html.Raw(Create.TwitterHashTagTooltipContent)
+  </div>
+  <div id="TwitterProfileTooltipContent">
+    @Html.Raw(Create.TwitterProfileTooltipContent)
+  </div>
+  <div id="SummaryTooltipContent">
+    @Html.Raw(Create.SummaryTooltipContent)
+  </div>
+</div>

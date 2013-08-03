@@ -1,0 +1,19 @@
+﻿@model DevAgenda.Domain.Models.User
+
+@{
+    ViewBag.Title = Model.UserName + " - " + DevAgenda.Resources.Common.SiteName;
+    Layout = "~/Views/Shared/_WideLayout.cshtml";
+}
+
+<div id="user-description" style="float: left; margin-left: 15px; padding: 0; width: 900px;">
+  <div class="user-img" style="float: left; height: 48px; margin: 0px 15px 0 5px; width: 48px;">
+    <img class="imgLeft" height="48px" width="48px" alt="" src="@Model.PictureUrl" />
+  </div>
+  <div style="float: left; line-height: 48px;"> 
+    <h3 style="line-height: 48px;">@Model.UserName</h3>
+  </div>
+</div>
+
+<div class="clear"></div>
+
+<div class="divider-fullwidth" style="background: url('http://i.imgur.com/IdKJX.gif') repeat-x scroll 0 0 transparent; clear: both; display: block; height: 26px; margin: 15px 15px 35px; width: 900px;"></div>

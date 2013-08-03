@@ -1,0 +1,43 @@
+﻿@using DevAgenda.Infrastructure
+@using DevAgenda.Resources.Shared
+@using DevAgenda.WebApp.Helpers
+
+@model DevAgenda.WebApp.Models.EventDetailsViewModel
+
+<div class="event-details">
+  <span class="event-date" title="@EventDetails.EventDate">
+    @Utils.FormatDateRange(Model.Event.StartDate, Model.Event.EndDate)
+    
+    @if (Model.DisplayCountdown)
+    {
+      @: (@Model.Event.StartDate.DaysFromNow())
+    } 
+  </span>
+
+  <span class="event-location" title="@EventDetails.EventLocation">
+    @(Model.Event.Location.Formatted)
+  </span>
+
+  <span class="event-type" title="@EventDetails.EventType">
+    @DevAgenda.Resources.Event.ResourceManager.GetString(Model.Event.Type.Name)
+
+    @if (!Model.Event.IsFreeOfCharge)
+    {
+      <span class="event-not-free" title="@EventDetails.EventNotFree">$</span>
+    }
+  </span>
+
+  @if (Model.DisplayExtended)
+  {
+    <span class="event-website" title="@EventDetails.EventWebsite">
+      <a href="@Model.Event.Website">@Model.Event.Website</a>
+    </span>
+    
+    if (!string.IsNullOrEmpty(Model.Event.TwitterProfile))
+    {
+      <span class="event-twitter-profile" title="@EventDetails.EventTwitterProfile">
+        <a href="http://twitter.com/@Model.Event.TwitterProfile.Substring(1)">@Model.Event.TwitterProfile</a>
+      </span>
+    }
+  }
+</div>

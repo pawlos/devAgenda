@@ -1,0 +1,104 @@
+﻿@{
+    ViewBag.Title = "LogIn";
+    Layout = "~/Views/Shared/_RightSidebarLayout.cshtml";
+}
+
+@section HeadArea {
+    <script src="@Url.Content("~/Scripts/openid-jquery.js")" type="text/javascript"></script>
+    <script type="text/javascript">
+      $(function () {
+        openid.init("openid_identifier", "@Url.Content("~/Content/images/openid-logos.png")");
+
+        $("#more-options-link").click(function () {
+          $(this).remove();
+          $("#show-more-options").show();
+        });
+      });
+    </script>
+}
+
+@section Sidebar {
+  <div class="sidebar-content-right">
+    <h5>Why OpenId?</h5>
+    <p>It’s a single username and password that allows you to log in to any OpenID-enabled site.</p>
+    <p>It works on thousands of websites.</p>
+    <p>It’s an open standard.</p>
+  </div>
+}
+
+<h3>
+  Log In
+</h3>
+
+@if (TempData["authError"] != null)
+{
+  <p class="error-messasge">
+    @TempData["authError"]
+  </p>
+}
+
+
+@* TODO: ME refactor *@
+@if (TempData["openIdError"] != null)
+{
+  <p class="error-messasge">
+    @TempData["openIdError"]
+  </p>
+}
+
+@if (TempData["unknownAuthType"] != null)
+{
+  <p class="error-messasge">
+    @TempData["unknownAuthType"]
+  </p>
+}
+
+@if (TempData["openIdAuthError"] != null)
+{
+  <p class="error-messasge">
+    @TempData["openIdAuthError"]
+  </p>
+}
+
+<p>
+  Do you already have an account on one of these sites? Click the logo to <strong>log in</strong> with it here:
+</p>
+
+<div class="login_form">
+  @using (Html.BeginForm("Authenticate", "Users", FormMethod.Post, new { id = "openid_form" }))
+  {
+    @Html.AntiForgeryToken()
+     
+    <div>
+      <input name="authType" id="authType" type="hidden" value="1" />
+      <input name="returnUrl" id="returnUrl" type="hidden" value="@Request.QueryString["returnUrl"]" />
+    </div>
+  
+    <div id="openid_choice">
+      <div id="openid_btns">
+        <div id="show-more-options">
+          <div id="simple-openid-selector">
+            <div id="openid-url-input-area">
+              <p>You can manually enter your OpenID:</p>
+              <table id="openid-url-input">
+                <tr>
+                  <td>
+                    <input id="openid_identifier" name="openid_identifier" class="openid-identifier" type="text" tabindex="100" />
+                  </td>
+                  <td>
+                    <button id="submit-button" type="submit" tabindex="101">Log in</button>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p id="more-options-link">
+        <br />
+        <a>Show more login options ...</a>
+      </p>
+    </div> 
+  }
+</div>
+

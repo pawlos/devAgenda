@@ -1,0 +1,22 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section HeadArea {
+  @RenderSection("HeadArea", false)
+}
+
+@section Filter {
+  @RenderSection("Filter", false)
+}
+
+<div id="content-left"> 
+  @RenderBody()  
+</div>
+<div id="sidebar-right">
+  <div id="sidebar-right-top">
+    <div id="sidebar-right-bottom">
+      @RenderSection("Sidebar", true)
+    </div>
+  </div>
+</div>

@@ -1,0 +1,353 @@
+﻿@using DevAgenda.Domain.Models
+@using EventsFilter = DevAgenda.Resources.Events.EventsFilter
+
+@model DevAgenda.Domain.Models.EventsFilter
+
+@helper GetHappeningTimeFilterItem(HappeningTime happeningTime) 
+{
+  string filterValue;
+
+  switch (happeningTime)
+  {
+    case HappeningTime.Upcoming:
+      filterValue = EventsFilter.Upcoming;
+      break;
+    case HappeningTime.Ongoing:
+      filterValue = EventsFilter.Ongoing;
+      break;
+    case HappeningTime.Past:
+      filterValue = EventsFilter.Past;
+      break;
+    default:
+      throw new ArgumentOutOfRangeException();
+  }
+  
+  <a id="happenedFilterItem" class="filter-item">@filterValue</a>
+}
+
+@helper GetIsFreeOfChargeFilterItem(bool? isFreeOfCharge)
+{
+  if (isFreeOfCharge != null)
+  {
+    string filterValue =
+      isFreeOfCharge.Value 
+        ? EventsFilter.Free 
+        : EventsFilter.NonFree;
+
+    <a id="isFreeOfChargeFilterItem" class="filter-item">@filterValue</a>
+  }
+}
+
+@helper GetEventTypeFilterItem(int? eventType)
+{
+  string filterValue;
+
+  if (eventType == null)
+  {
+    filterValue = EventsFilter.Events;
+  }
+  else
+  {
+    switch (eventType.Value)
+    {
+      case 1:
+        filterValue = EventsFilter.Conferences;
+        break;
+      case 2:
+        filterValue = EventsFilter.UserGroups;
+        break;
+      case 3:
+        filterValue = EventsFilter.Workshops;
+        break;
+      case 4:
+        filterValue = EventsFilter.OtherEvents;
+        break;
+      default:
+        filterValue = EventsFilter.Events;
+        break;
+    }
+  }
+  
+  <a id="eventTypeFilterItem" class="filter-item">@filterValue</a>
+}
+@*
+@helper GetLocationFilterItem(SearchedArea location) {
+  if (location != null)
+  {
+    <text>in</text> <a id="locationFilterItem" class="filter-item">@location.Name</a>  
+  }
+}*@
+
+<style type="text/css">
+  .filter-item-pop-up div
+  {
+    margin: 0;
+    padding: 3px 0;
+  }
+  
+  .filter-item-pop-up hr
+  { 
+    border-color: #D8D8D8;
+    border-style: solid;
+    border-width: 0 0 1px;
+    margin: 5px;
+  }
+  
+  .filter-item-pop-up a
+  {
+    color: #000000;
+    display: block;
+    line-height: 1;
+    margin: 0;
+    outline: medium none;
+    padding: 2px 15px;
+    text-decoration: none;
+  }
+  
+  .filter-item-pop-up a:hover
+  {
+    background-color: #B1C9DD;
+  }
+  
+  .itemExpanded
+  {
+    background-image: url('http://i.imgur.com/BtcD7.png');
+  }
+  
+  
+  
+  input.filterInput
+  {
+    width: 125px;
+    margin-left: 15px;
+    margin-right: 15px;
+    border: 1px solid #8FB3D4;
+    border-radius: 0px;
+    padding: 2px;
+    vertical-align: baseline;
+  }
+  
+  #refineLocation.progress-indicator 
+  {
+    background-image: url('http://i.imgur.com/UYgrf.gif');
+    background-repeat: no-repeat;
+    background-position: 110px center;
+  }
+</style>
+<script type="text/javascript">
+  $(function () {
+
+
+    $("#filter-configuration").live("click", function (event) {
+      var position = $(this).position();
+      var $popUp = $("#refineFurtherPopUp");
+
+      $popUp.css({ left: position.left + 10, top: position.top + 16 }).show();
+
+      event.stopPropagation();
+    });
+
+    $(".filter-item").live("click", function (event) {
+      var position = $(this).position();
+      var $popUp = $("#" + $(this).attr("id") + "PopUp");
+
+      $popUp.css({ left: position.left, top: position.top + 16 }).show();
+
+      event.stopPropagation();
+    });
+
+    $(".refinement-item").live("click", function () {
+      $(this).next().toggle();
+
+      $(this).next().find("input").focus();
+
+      $(this).toggleClass("itemExpanded");
+
+      return false;
+    });
+
+    var mouseInsidePopUp = false;
+
+    $(".filter-item-pop-up").hover(function () {
+      mouseInsidePopUp = true;
+    }, function () {
+      mouseInsidePopUp = false;
+    });
+
+    $("html").click(function () {
+      if (!mouseInsidePopUp) {
+        $(".filter-item-pop-up").hide();
+      }
+    });
+
+      var geocode = function() {
+          var area = $("#refineLocation").val();
+
+          $("#refineLocation").addClass("progress-indicator");
+
+          $("#locationSuggestions")
+              .empty()
+              .append("<div style='color: #828282; font-weight: normal;'>Searching..</div>")
+              .show();
+
+          $.post(
+              "/Events/GeocodeArea",
+              { area: area },
+              function(results) {
+                  $("#locationSuggestions").empty();
+
+                  var resultsCount = results.length;
+
+                  // TODO: HI correct css
+                  if (resultsCount == 0) {
+                      $("#locationSuggestions").append("<div class='not-found'>No results found</div>");
+                  }
+
+                  $.each(results, function(index, value) {
+                      $("#locationSuggestions")
+                          .append("<a href='?LocationId=" + value.Id + "'>" + value.Name + "</a>");
+                  });
+
+                  $("#refineLocation").removeClass("progress-indicator");
+              })
+              .error(function () {
+                  // TODO: HI Error handling
+              });
+      };
+
+      $("#refineLocation")
+      .data("timeout", null)
+      .keyup(function () {
+        clearTimeout($(this).data("timeout"));
+
+        var phraseLen = $(this).val().length;
+
+        if (phraseLen >= 2) {
+          $(this).data("timeout", setTimeout(geocode, 500));
+        }
+      });
+  });
+</script>
+
+<div id="top-content">
+  <div id="filter-content">
+    @EventsFilter.Showing
+    @GetHappeningTimeFilterItem(Model.HappeningTime)
+    @GetIsFreeOfChargeFilterItem(Model.IsFreeOfCharge)
+    @GetEventTypeFilterItem(Model.EventType)
+    
+    @*
+    @GetEventTypeFilterItem(Model.EventType)
+    @GetLocationFilterItem(Model.Location)*@
+    <span class="refinement">
+      <a id="filter-configuration">
+        <span>refine further</span> 
+      </a>
+    </span>
+  </div>
+
+  <span>
+    <span id="happenedFilterItemPopUp" class="filter-item-pop-up">
+      <table class="no-border">
+        <tr>
+          <td>
+            <div id="happenedFilterItemPopUpInner">
+              <div>
+                <a href="?HappeningTime=0">@EventsFilter.Upcoming</a>
+                <a href="?HappeningTime=1">@EventsFilter.Ongoing</a>
+                <a href="?HappeningTime=2">@EventsFilter.Past</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </span>
+    <span id="isFreeOfChargeFilterItemPopUp" class="filter-item-pop-up">
+      <table class="no-border">
+        <tr>
+          <td>
+            <div id="isFreeOfChargeFilterItemPopUpInner">
+              <div>
+                <a href="?IsFreeOfCharge=true">@EventsFilter.Free</a> 
+                <a href="?IsFreeOfCharge=false">@EventsFilter.NonFree</a>
+                <hr />
+                <a href="?IsFreeOfCharge=null">@EventsFilter.All</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </span>
+    <span id="eventTypeFilterItemPopUp" class="filter-item-pop-up">
+      <table class="no-border">
+        <tr>
+          <td>
+            <div id="eventTypeFilterItemPopUpInner">
+              <div>
+                <a href="?EventType=1">@EventsFilter.Conferences</a>
+                <a href="?EventType=2">@EventsFilter.UserGroups</a>
+                <a href="?EventType=3">@EventsFilter.Workshops</a>
+                <a href="?EventType=4">@EventsFilter.OtherEvents</a>
+                <hr />
+                <a href="?EventType=null">@EventsFilter.All</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </span>
+    <span id="refineFurtherPopUp" class="filter-item-pop-up">
+      <table class="no-border">
+        <tr>
+          <td>
+            <div style="margin: 0;">
+              <div id="refineFurtherPopUpInner">
+                <a class="refinement-item" href="">@EventsFilter.HappeningTime</a>
+                <span class="expand-indent" style="display: none;">
+                  <a href="?HappeningTime=0">@EventsFilter.Upcoming</a>
+                  <a href="?HappeningTime=1">@EventsFilter.Ongoing</a>
+                  <a href="?HappeningTime=2">@EventsFilter.Past</a>
+                </span>
+                <a class="refinement-item" href="">@EventsFilter.IsFreeOfCharge</a>
+                <span class="expand-indent" style="display: none;">
+                  <a href="?IsFreeOfCharge=true">@EventsFilter.Free</a> 
+                  <a href="?IsFreeOfCharge=false">@EventsFilter.NonFree</a>
+                  <hr />
+                  <a href="?IsFreeOfCharge=null">@EventsFilter.All</a>
+                </span>
+
+                @*<a class="refinementItem" href="">Duration</a>
+                <span class="expandIndent" style="display: none;">
+                  <a href="?Duration=1">less than a day</a>
+                  <a href="?Duration=2">one day</a>
+                  <a href="?Duration=3">two days</a>
+                  <a href="?Duration=4">three days</a>
+                  <a href="?Duration=5">four days</a>
+                  <a href="?Duration=6">five days</a>
+                </span>
+                <a class="refinementItem" href="">Event type</a>
+                <span class="expandIndent" style="display: none;">
+                  <a href="?EventType=1">@DevAgenda.Resources.EventsFilter.EventType_Conferences</a>
+                  <a href="?EventType=2">@DevAgenda.Resources.EventsFilter.EventType_UserGroups</a>
+                  <a href="?EventType=3">@DevAgenda.Resources.EventsFilter.EventType_Workshops</a>
+                  <a href="?EventType=4">@DevAgenda.Resources.EventsFilter.EventType_OtherEvents</a>
+                  <hr />
+                  <a href="?EventType=null">@DevAgenda.Resources.EventsFilter.All</a> 
+                </span>
+                <a class="refinementItem" href="">Location</a>
+                <span class="expandIndent" style="display: none;">
+                  <input id="refineLocation" class="filterInput" type="text" autocomplete="off" />
+                  <br />
+                  <span id="locationSuggestions" style="margin-left: 15px; padding-top: 5px; display: block;"></span>
+                  <hr />
+                  <a href="?LocationId=null">@DevAgenda.Resources.EventsFilter.Anywhere</a> 
+                </span>*@
+                
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </span>
+  </span>
+</div>

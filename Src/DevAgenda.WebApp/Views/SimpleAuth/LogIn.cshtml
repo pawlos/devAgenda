@@ -1,0 +1,36 @@
+﻿@using SimpleSocialAuth.MVC3
+
+@{
+  ViewBag.Title = DevAgenda.Resources.SimpleAuth.LogIn.Title + " - " + DevAgenda.Resources.Common.SiteName;
+  Layout = "~/Views/Shared/_RightSidebarLayout.cshtml";
+}
+
+@section HeadArea {
+  @Html.RenderAuthStylesheet()
+  @Html.RenderAuthScript()
+}
+
+@section Sidebar {
+  <div class="sidebar-content-right">
+    <h5>@DevAgenda.Resources.SimpleAuth.LogIn.WhyOAuthHeader</h5>
+    @Html.Raw(DevAgenda.Resources.SimpleAuth.LogIn.WhyOAuthTextBlock)
+  </div>
+}
+
+<h3>@DevAgenda.Resources.SimpleAuth.LogIn.Title</h3>
+
+@if (TempData["authError"] != null)
+{
+  <p class="error-messasge">
+    @TempData["authError"]
+  </p>
+}
+
+@Html.Raw(DevAgenda.Resources.SimpleAuth.LogIn.IntroParagraph)
+
+@using (Html.BeginForm("Authenticate", "SimpleAuth", FormMethod.Post, new { id = "authForm", style="margin-bottom: 10px;" }))
+{
+  @Html.AuthButtons()
+}
+
+@Html.Raw(DevAgenda.Resources.SimpleAuth.LogIn.DisclaimerParagraph)

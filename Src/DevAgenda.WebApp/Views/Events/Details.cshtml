@@ -1,0 +1,134 @@
+﻿@using DevAgenda.Resources
+@using DevAgenda.Resources.Events
+@using DevAgenda.WebApp.Models
+
+@model DevAgenda.Domain.Models.Event
+
+@{
+  ViewBag.Title = Model.Name + " - " + Common.SiteName;
+  Layout = "~/Views/Shared/_RightSidebarLayout.cshtml";
+}
+
+@section HeadArea {
+  <script type="text/javascript" src="@Url.Content("~/Scripts/eventDetails.js")"></script>
+}
+
+@section Sidebar {
+  <div class="sidebar-content-right">
+    <h5>Similar events</h5>
+    <p>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin dolor lorem, rutrum quis dictum nec, viverra ac dui.
+    </p>
+    <p> 
+      TODO @* TODO: HI similar events widget *@
+    </p>
+  </div>
+}
+
+<h3>@Model.Name</h3>
+
+<div id="event-container">
+  @Html.HiddenFor(e => e.Id)
+
+  @{
+    Html.RenderPartial(
+      "_EventDetails", 
+      new EventDetailsViewModel
+        {
+          Event = Model, 
+          DisplayCountdown = false,
+          DisplayExtended = true
+        });
+    }
+
+  <div class="tags">
+    @foreach (var tag in Model.Tags)
+    {
+      <a class="tag @tag.Name">@tag.Name</a>
+    }
+  </div>
+
+  <div id="event-summary-container">
+    <blockquote>
+      @Model.Summary
+    </blockquote>
+  </div>
+
+  <div id="attendees-container">
+    <h5>@Details.Attendees</h5>
+    @* TODO: HI info when no attendees *@
+    
+    <div id="attendees-container-inner">
+      @foreach (var attendee in Model.Attendees)
+      {
+        <a id="user-@attendee.Id" class="attendee-avatar" href="@Url.Action("Profile", "Users", new { id = attendee.Id })" title="@attendee.UserName">
+          <img width="30px" height="30px" src="@attendee.PictureUrl" alt="@attendee.UserName" />
+        </a>
+      }
+    </div>
+  </div>
+</div>
+
+<div id="event-actions-container" @(!Request.IsAuthenticated ? "class=actions-unauthenticated" : "")>
+  @if (Request.IsAuthenticated)
+  {
+    <div id="rsvp-container">
+      @{
+        bool userIsAttending =
+          Model.Attendees.Any(u => u.Id == int.Parse(User.Identity.Name));
+      }
+    
+      <span id="rsvp-info" style="display: @(userIsAttending ? "inline" : "none");">
+        @Details.YouAreAttending <a id="undo-rsvp" href="javascript:void(0);">@Common.Undo</a>
+      </span>
+
+      <button id="rsvp" style="display: @(!userIsAttending ? "block" : "none"); float: none; margin: 0 auto;">
+        @Details.AttendThisEvent
+      </button>  
+    </div>
+  }
+  else
+  {
+    @Html.Raw(
+      string.Format(
+        Details.NoActionsUnlessAuthenticated, 
+        Url.Action("LogIn", "SimpleAuth", new { returnUrl = Request.Url.PathAndQuery })))
+  }
+  
+</div>
+
+<div id="twitter-hashtag-container">
+  @if (!string.IsNullOrEmpty(Model.TwitterHashTag))
+  {
+    <script type="text/javascript" src="http://widgets.twimg.com/j/2/widget.js"></script>
+    <script type="text/javascript">
+      new TWTR.Widget({
+        version: 2,
+        type: 'search',
+        search: '@Model.TwitterHashTag',
+        interval: 30000,
+        title: '@Model.TwitterHashTag',
+        subject: '',
+        width: 'auto',
+        height: 600,
+        theme: {
+          shell: {
+            background: '#F0F0F0',
+            color: '#828282'
+          },
+          tweets: {
+            background: '#ffffff',
+            color: '#444444',
+            links: '#1985b5'
+          }
+        },
+        features: {
+          scrollbar: false,
+          loop: true,
+          live: true,
+          behavior: 'default'
+        }
+      }).render().start();
+    </script>
+  }
+</div>

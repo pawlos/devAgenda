@@ -1,0 +1,214 @@
+﻿@using DevAgenda.Infrastructure
+@using DevAgenda.WebApp.Models
+
+@model MainViewModel
+
+@{
+  ViewBag.Title = "Index" + " - " + DevAgenda.Resources.Common.SiteName;
+  Layout = "~/Views/Shared/_RightSidebarLayout.cshtml";
+}
+
+@section Sidebar {
+  <div class="sidebar-content-right">
+    <h5>Featured events</h5>
+    <p>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin dolor lorem, rutrum quis dictum nec, viverra ac dui.
+    </p>
+    <p> 
+      TODO @* TODO HI some widget *@
+    </p>
+  </div>
+}
+
+@section Filter {
+  @{ Html.RenderPartial("_EventsFilter", Model.Filter); }
+}
+
+<style type="text/css">
+  
+    #filter-content 
+    {
+        font-family: Arial, Tahoma, Verdana;
+        color: #949494;
+        font-size: 12px;
+    }
+    
+    .filter-item 
+    {
+        border-bottom: 1px dotted #000000;
+        color: #000000;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .filter-item:hover 
+    {
+        text-decoration: none;
+        color: #000000;
+    }
+  
+    #filter-configuration 
+    {
+        margin-left: 12px;
+        font-size: 10px;
+        line-height: 10px;
+        font-weight: bold;
+    }
+  
+    #filter-configuration:hover
+    {
+        text-decoration: none;
+    }
+  
+    #filter-configuration span
+    {
+        color: #C4C4C4;
+        border-bottom: 1px dotted #000000;
+        margin-left: -2px;
+    }
+    
+    #filter-configuration:hover span 
+    {
+        color: #000000;
+    }
+  
+    .event-summary 
+    {
+        border-bottom: 1px solid #E8E8E8;
+        padding: 11px 5px;
+        overflow: hidden;
+        width: 415px;
+    }
+    
+    .event-summary h4 
+    {
+        margin-bottom: 6px;
+    }
+    
+    .event-summary 
+    {
+        overflow: hidden;
+        width: 100%;
+    }
+    
+    .event-summary:hover 
+    {
+        background-color: #F7F7F7;
+    }
+    
+    #tabs 
+    {
+        float: right;
+        font-family: Arial, Tahoma, Verdana;
+    }
+    
+    #tabs a 
+    {
+        background: inherit;
+        display: block;
+        float: left;
+        text-decoration: none;
+        line-height: 21px;
+        margin-right: 10px;
+        font-size: 12px;
+    }
+    
+    #tabs a.active 
+    {
+        font-weight: bold;
+        border-bottom: 1px dashed #B3B3B3;
+    }
+    
+    .header-line
+    {
+        overflow: hidden;
+    }
+    
+    .header-line h4 
+    {
+        width: 80%;
+        float: left;
+    }
+    
+    .header-line span 
+    {
+        float: right;
+        font-family: Arial, Tahoma, Verdana;
+        font-size: 0.8em;
+        display: none;
+        margin-right: 5px;
+    }
+    
+    .header-line span a 
+    {
+        color: #049FDA;
+    }
+    
+    .event-summary:hover .header-line span 
+    {
+        display: block;
+    }
+    
+</style>
+
+<div id="eventsArea" style="border: 0px solid #ddd; width: 100%; float: left;">
+  @*<div class="subheader" style="border: 0px solid green; overflow: hidden;">
+    <h3 style="float: left;">All events</h3>
+    <div id="tabs">
+      @Html.ActionLink("upcoming", "Index", "Events", new { tab = EventTab.Upcoming }, new { @class = (Model.ActiveTab == EventTab.Upcoming) ? "active" : "" })
+      @Html.ActionLink("archive", "Index", "Events", new { tab = EventTab.Archive }, new { @class = (Model.ActiveTab == EventTab.Archive) ? "active" : "" })
+    </div>
+  </div>*@
+  <div id="event-mini-list">
+    @foreach (var @event in Model.Events)
+    {
+      <div id="event-summary-@(@event.Id)" class="event-summary" style="">
+        <div class="summary" style="float: left; width: 100%;">
+          <div class="header-line">
+            <h4>
+              @Html.ActionLink(@event.Name, "Details", new { eventId = @event.Id, eventSlug = @Utils.Slugify(@event.Name) })
+            </h4>
+            <span>
+              <a href="#">edit</a>
+              <a href="#">report</a>
+            </span>
+          </div>
+
+          @{
+            Html.RenderPartial(
+              "_EventDetails", 
+              new EventDetailsViewModel
+                {
+                  Event = @event, 
+                  DisplayCountdown = Model.ActiveTab == EventTab.Upcoming,
+                  DisplayExtended = false
+                });
+           }
+
+          <div style="border: 0px solid black; width: 50px; height: 50px; margin-right: 3px; float: right; padding: 5px; background-color: inherit;">
+              <div style="font-size: 170%; font-weight: bold; margin: 0 auto; text-align: center; padding: 2px 0;">
+                @(@event.Attendees.Count)
+              </div>
+              <div style="margin: 0 auto; font-size: 90%; text-align: center;">
+                attending
+              </div>
+          </div>
+
+          <div class="tags">
+            @foreach (var tag in @event.Tags)
+            {
+              <a class="tag @tag.Name">@tag.Name</a>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+@*<div style="float: left; border: 0px dotted red; width: 210px; margin: 0 0 0 5px; overflow: hidden;">
+  <div style="">
+    <h5>User actions</h5>
+  </div>
+  @{ Html.RenderPartial("ActionsList", Model.Actions); }
+</div>*@
